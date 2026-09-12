@@ -1,86 +1,181 @@
 """
-Core Errand Concierge agent definition.
+google_auth.py — Handles Google OAuth (Calendar-only scope) for Errand Concierge.
 
-Wires up the model (Bedrock Mantle / GPT OSS 120B), the system prompt
-that defines the agent's behavior, and the tools it can call.
+This is a THIN auth layer: it does NOT create user accounts. It only stores
+a single set of Google tokens (assume single-user/demo deployment), enabling
+add_errand / reschedule_errand to sync to the connected Google Calendar.
+
+Setup required (Google Cloud Console):
+1. Enable "Google Calendar API" for your project.
+2. Create OAuth 2.0 Client ID (type: Web application).
+3. Add authorized redirect URI matching REDIRECT_URI below.
+4. Add your own Google account as a "Test user" under OAuth consent screen
+   (you'll stay in "Testing" publish status — fine for a hackathon demo).
+5. Set GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET as env vars (or paste below).
+
+Token storage: tokens.json (local file, gitignore this!).
 """
 
+import json
 import os
-from datetime import datetime
+import time
+from pathlib import Path
+from urllib.parse import urlencode
 
-from dotenv import load_dotenv
-from strands import Agent
-from strands.models.openai import OpenAIModel
+import requests
 
-from tools import add_errand, list_errands, reschedule_errand, complete_errand, cancel_errand
-
-load_dotenv()  # reads .env in the project root (if present) into environment variables
-
-# --- Model configuration ---
-BEDROCK_API_KEY = os.environ["BEDROCK_API_KEY"]  # raises a clear error if missing, instead of silently using a placeholder
-
-model = OpenAIModel(
-    client_args={
-        "base_url": "https://bedrock-mantle.us-east-1.api.aws/v1",
-        "api_key": BEDROCK_API_KEY,
-    },
-    model_id="openai.gpt-oss-120b",
-    params={"stream": False},
+# ---- Config: fill these in (or set as env vars) ----
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "YOUR_CLIENT_ID_HERE")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "YOUR_CLIENT_SECRET_HERE")
+REDIRECT_URI = os.environ.get(
+    "GOOGLE_REDIRECT_URI", "http://localhost:8000/api/integrations/google/callback"
 )
 
-def build_system_prompt() -> str:
-    today = datetime.now()
-    today_str = today.strftime("%A, %B %d, %Y")
+SCOPES = [
+    "https://www.googleapis.com/auth/calendar.events",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "openid",
+]
+AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
+TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
+USERINFO_ENDPOINT = "https://www.googleapis.com/oauth2/v2/userinfo"
 
-    return f"""You are Errand Concierge, a friendly and efficient personal assistant that helps
-people organize the errands, appointments, and small tasks they keep forgetting.
-
-Today's actual date is {today_str}. Trust this over any internal sense of the calendar you might have.
-
-Your job:
-1. When the user dumps a messy list of things they need to do, parse it into separate errands
-   and add each one using the add_errand tool.
-2. When asked what's on their plate, use list_errands to show pending items, sorted by how
-   urgent they sound.
-3. When the user wants to reschedule something ("push the dentist to Friday", "move rent to
-   next week"), use reschedule_errand.
-4. When the user says they've finished something, use complete_errand.
-5. When the user wants to drop something entirely, use cancel_errand.
-
-CRITICAL — the errand list can change outside this conversation:
-- The user also manages errands through a separate app UI (marking things done, cancelling,
-  deleting) without going through you at all. That means anything you said earlier in this
-  conversation about which errands exist may now be out of date.
-- Whenever the user asks about their current errands, or references one by name (e.g. "when's
-  the dentist thing due", "did I still need to do X"), ALWAYS call list_errands again to get the
-  live state. Never answer from what you said earlier in this conversation, and never assume an
-  errand you mentioned before still exists or still has the same status.
-- Only exception: right after you yourself just called add_errand/reschedule_errand/
-  complete_errand/cancel_errand in this same turn, you can trust that immediate result without
-  re-listing.
-
-CRITICAL — how to handle due dates:
-- NEVER calculate or rewrite a calendar date yourself. Date parsing on your side is unreliable.
-- When the user gives a due date in any form ("tuesday", "next friday", "before the weekend",
-  "in 3 days", "tomorrow", "Oct 3rd"), pass that phrase through to the tool's due date argument
-  almost exactly as the user said it (light cleanup like lowercasing is fine). The underlying
-  date parser will resolve it correctly against the real current date — you do not need to, and
-  must not, convert it into an explicit date like "September 13" yourself.
-- If no due date is implied at all, don't invent one — leave it blank.
-- When confirming back to the user, refer to the date the way they did (e.g. "got it, dentist on
-  Friday") rather than stating a computed date, unless the tool result gives you back a resolved
-  date to confirm with.
-
-Keep your responses short and conversational - you're a concierge, not a report generator.
-Confirm what you did in one or two sentences, don't repeat the full list back unless asked.
-"""
+TOKENS_FILE = Path(__file__).parent / "tokens.json"
 
 
-SYSTEM_PROMPT = build_system_prompt()
+# ---------------- Token storage ----------------
 
-agent = Agent(
-    model=model,
-    tools=[add_errand, list_errands, reschedule_errand, complete_errand, cancel_errand],
-    system_prompt=SYSTEM_PROMPT,
-    callback_handler=None,  # suppress default streaming/debug printouts; main.py prints the final answer itself
-)
+def _load_tokens() -> dict | None:
+    if not TOKENS_FILE.exists():
+        return None
+    try:
+        return json.loads(TOKENS_FILE.read_text())
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def _save_tokens(tokens: dict) -> None:
+    TOKENS_FILE.write_text(json.dumps(tokens, indent=2))
+
+
+def _clear_tokens() -> None:
+    if TOKENS_FILE.exists():
+        TOKENS_FILE.unlink()
+
+
+# ---------------- OAuth flow ----------------
+
+def get_authorization_url() -> str:
+    """Step 1: URL to send the user to for Google consent."""
+    params = {
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": REDIRECT_URI,
+        "response_type": "code",
+        "scope": " ".join(SCOPES),
+        "access_type": "offline",   # required to get a refresh_token
+        "prompt": "consent",        # forces refresh_token on repeat connects too
+        "include_granted_scopes": "true",
+    }
+    return f"{AUTH_ENDPOINT}?{urlencode(params)}"
+
+
+def exchange_code_for_tokens(code: str) -> dict:
+    """Step 2: exchange the auth code (from callback) for tokens."""
+    resp = requests.post(
+        TOKEN_ENDPOINT,
+        data={
+            "code": code,
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "redirect_uri": REDIRECT_URI,
+            "grant_type": "authorization_code",
+        },
+        timeout=10,
+    )
+    resp.raise_for_status()
+    token_data = resp.json()
+    token_data["obtained_at"] = time.time()
+
+    # Fetch email for display purposes in the Integrations tab
+    try:
+        userinfo = requests.get(
+            USERINFO_ENDPOINT,
+            headers={"Authorization": f"Bearer {token_data['access_token']}"},
+            timeout=10,
+        )
+        if userinfo.ok:
+            token_data["email"] = userinfo.json().get("email")
+    except requests.RequestException:
+        pass
+
+    _save_tokens(token_data)
+    return token_data
+
+
+def _refresh_access_token(tokens: dict) -> dict:
+    resp = requests.post(
+        TOKEN_ENDPOINT,
+        data={
+            "refresh_token": tokens["refresh_token"],
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "grant_type": "refresh_token",
+        },
+        timeout=10,
+    )
+    resp.raise_for_status()
+    new_data = resp.json()
+    tokens["access_token"] = new_data["access_token"]
+    tokens["expires_in"] = new_data.get("expires_in", 3600)
+    tokens["obtained_at"] = time.time()
+    _save_tokens(tokens)
+    return tokens
+
+
+def get_valid_access_token() -> str | None:
+    """Returns a usable access token, refreshing if needed. None if not connected."""
+    tokens = _load_tokens()
+    if not tokens:
+        return None
+
+    expires_in = tokens.get("expires_in", 3600)
+    obtained_at = tokens.get("obtained_at", 0)
+    # Refresh if within 60s of expiry
+    if time.time() > obtained_at + expires_in - 60:
+        if "refresh_token" not in tokens:
+            # No refresh token — connection is dead, must reconnect
+            _clear_tokens()
+            return None
+        try:
+            tokens = _refresh_access_token(tokens)
+        except requests.RequestException:
+            return None
+
+    return tokens["access_token"]
+
+
+def get_connection_status() -> dict:
+    """For the Integrations tab: is Calendar connected, and as whom?"""
+    tokens = _load_tokens()
+    if not tokens:
+        return {"connected": False}
+    # Confirm the token is actually still valid/refreshable
+    token = get_valid_access_token()
+    if not token:
+        return {"connected": False}
+    return {"connected": True, "email": tokens.get("email")}
+
+
+def disconnect() -> None:
+    """Revoke the token with Google and clear local storage."""
+    tokens = _load_tokens()
+    if tokens and tokens.get("refresh_token"):
+        try:
+            requests.post(
+                "https://oauth2.googleapis.com/revoke",
+                params={"token": tokens["refresh_token"]},
+                timeout=10,
+            )
+        except requests.RequestException:
+            pass  # best-effort; clear local state regardless
+    _clear_tokens()
