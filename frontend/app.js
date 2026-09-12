@@ -1,4 +1,4 @@
-const API_BASE = "";
+const API_BASE = "https://errand-concierge-production.up.railway.app";
 
 const thread = document.getElementById("thread");
 const composer = document.getElementById("composer");
