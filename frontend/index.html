@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Errand Concierge</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="brand">
+        <img class="brand-mark" src="/static/assets/logo-mark.png" alt="Errand Concierge">
+        <span class="sidebar-title">Errand<br>Concierge</span>
+      </div>
+      <button class="sidebar-collapse" id="sidebarCollapse" title="Collapse">‹</button>
+    </div>
+
+    <nav class="sidebar-list">
+      <button data-view="home" class="nav-item active">🏠 Home</button>
+      <button data-view="grid" data-status="pending" class="nav-item">⏳ Pending <span class="nav-count" id="countPending"></span></button>
+      <button data-view="grid" data-status="done" class="nav-item">✅ Done</button>
+      <button data-view="grid" data-status="cancelled" class="nav-item">✖ Cancelled</button>
+      <button data-view="grid" data-status="all" class="nav-item">☰ All</button>
+      <button data-view="grid" data-status="trash" class="nav-item">🗑️ Trash</button>
+    </nav>
+
+    <div class="sidebar-section">
+      <p class="sidebar-label">Quick Actions</p>
+      <button class="quick-action" id="newErrandBtn">
+        <span class="quick-action-icon">📝</span>
+        <span>
+          <span class="quick-action-title">New Errand</span><br>
+          <span class="quick-action-sub">Send a request</span>
+        </span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <p class="sidebar-label">Integrations</p>
+      <button data-view="integrations" class="nav-item">📅 Google Calendar</button>
+    </div>
+
+    <div class="sidebar-tagline">
+      <p>Your plans.<br>Our priority.</p>
+    </div>
+  </aside>
+
+  <button class="sidebar-expand" id="sidebarExpand" title="Show errands">›</button>
+
+  <main class="main-panel">
+    <header class="masthead">
+      <img class="mark" src="/static/assets/logo-mark.png" alt="Errand Concierge">
+      <div class="masthead-text">
+        <h1>Errand Concierge</h1>
+        <p>Tell it what's on your plate. It keeps the list, the dates, and the follow-through.</p>
+      </div>
+      <div class="masthead-right">
+        <div class="masthead-note" aria-hidden="true">Less stress<br>More done</div>
+        <div class="date-pill">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="5" width="16" height="15" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M4 9.5H20" stroke="currentColor" stroke-width="1.6"/><path d="M8 3.2V6.3M16 3.2V6.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span id="todayDate"></span>
+        </div>
+      </div>
+    </header>
+
+    <section class="conversation-panel" id="homeView">
+      <div class="conversation-thread" id="thread">
+        <div class="welcome-row">
+          <div class="entry assistant">
+            <div class="who">Concierge</div>
+            <div class="text">Hi — tell me what's on your plate. Bills, appointments, errands, anything you keep forgetting.</div>
+          </div>
+          <div class="welcome-illustration" aria-hidden="true">
+            <svg viewBox="0 0 120 110" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="60" cy="55" r="50" fill="var(--green-wash)"/>
+              <g transform="translate(30,20) rotate(-4 30 35)">
+                <rect x="0" y="0" width="52" height="66" rx="4" fill="var(--paper-raised)" stroke="var(--ink)" stroke-width="2"/>
+                <path d="M9 14H43" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 26L13 30L21 20" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M27 27H43" stroke="var(--line)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 41L13 45L21 35" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M27 42H43" stroke="var(--line)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 56L13 60L21 50" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M27 57H37" stroke="var(--line)" stroke-width="2" stroke-linecap="round"/>
+              </g>
+              <g transform="translate(64,54) rotate(28)">
+                <rect x="0" y="0" width="8" height="46" rx="3" fill="var(--ochre)"/>
+                <path d="M0 0L8 0L4 -9Z" fill="var(--ink)"/>
+              </g>
+              <path d="M92 24L96 30M100 20L104 24M88 32L92 36" stroke="var(--ochre)" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <form class="composer" id="composer">
+        <input type="text" id="messageInput" placeholder="e.g. pay electricity bill by Friday, dentist next week…" autocomplete="off">
+        <button type="submit" id="sendBtn">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2L7 9M14 2L9.5 14L7 9M14 2L2 6.5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Send</span>
+        </button>
+      </form>
+    </section>
+
+    <div class="feature-row" id="featureRow">
+      <div class="feature-card feature-green">
+        <div class="feature-icon-badge">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="5" width="16" height="15" rx="2.5" stroke="white" stroke-width="1.7"/>
+            <path d="M4 9.5H20" stroke="white" stroke-width="1.7"/>
+            <path d="M8 3.2V6.3M16 3.2V6.3" stroke="white" stroke-width="1.7" stroke-linecap="round"/>
+            <path d="M8.5 13.5L11 16L15.5 11.3" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="feature-title">Stay on Track</p>
+        <p class="feature-sub">Never miss an important date again.</p>
+      </div>
+      <div class="feature-card feature-blue">
+        <div class="feature-icon-badge">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3.5L19 6V11.5C19 16 16 18.8 12 20.5C8 18.8 5 16 5 11.5V6L12 3.5Z" stroke="white" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M9 11.5L11.2 13.7L15.5 9.3" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="feature-title">Reliable</p>
+        <p class="feature-sub">Your tasks, handled with care.</p>
+      </div>
+      <div class="feature-card feature-yellow">
+        <div class="feature-icon-badge">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 3L6 13.5H11.5L10.5 21L18 10H12.5L13 3Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="white"/>
+          </svg>
+        </div>
+        <p class="feature-title">Save Time</p>
+        <p class="feature-sub">Focus on what matters most.</p>
+      </div>
+      <div class="feature-card feature-purple">
+        <div class="feature-icon-badge">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 20C12 20 4 15 4 9.5C4 6.8 6.1 5 8.4 5C10 5 11.3 5.8 12 7C12.7 5.8 14 5 15.6 5C17.9 5 20 6.8 20 9.5C20 15 12 20 12 20Z" fill="white"/>
+          </svg>
+        </div>
+        <p class="feature-title">Peace of Mind</p>
+        <p class="feature-sub">Because you have better things to do.</p>
+      </div>
+    </div>
+
+    <section class="grid-panel" id="gridView" style="display:none;">
+      <h2 class="grid-heading" id="gridHeading">Pending</h2>
+      <div class="errand-grid" id="errandGrid"></div>
+    </section>
+
+    <section class="integrations-panel" id="integrationsView" style="display:none;">
+      <div class="integration-card">
+        <div class="integration-info">
+          <div class="integration-icon">📅</div>
+          <div>
+            <p class="integration-name">Google Calendar</p>
+            <p class="integration-status" id="googleStatusText">Checking…</p>
+          </div>
+        </div>
+        <div class="integration-action" id="googleActionBtn"></div>
+      </div>
+    </section>
+  </main>
+
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
