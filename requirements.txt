@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+python-dateutil
+strands-agents
+openai
+google-auth
+google-auth-oauthlib
+google-api-python-client
+requests
