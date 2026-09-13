@@ -95,7 +95,7 @@ Set up the Strands `Agent` with a system prompt defining the concierge persona a
 Several rounds of cleanup were needed here, documented honestly because mistakes were made and caught along the way:
 
 - Moved the Bedrock API key out of a hardcoded literal in `agent.py` into an environment variable, loaded via `python-dotenv`'s `load_dotenv()` at startup, so the real key only ever lives in a local `.env` file (never committed) or in the hosting platform's environment variable settings.
-- Confirmed `google_auth.py` already read its Google OAuth credentials from environment variables with only harmless placeholder fallbacks — no code change needed there.
+- Confirmed `google_auth.py` already read its Google OAuth credentials from environment variables with only harmless placeholder fallbacks, no code change needed there.
 - Found a real hardcoded Bedrock API key in `test_agent.py` (a separate quick-test script) that had been missed in the first pass. Fixed it the same way, and rotated the exposed key in the AWS Bedrock console as a precaution once it had been in a local commit.
 - Built a proper `.gitignore` excluding `.env`, `tokens.json`, `tasks.json`, `tasks_trash.json`, `__pycache__/`, and virtual environment folders, after first catching that `git status` was being run from the *home directory* rather than the project folder, which would have tracked unrelated personal files (AWS credentials folder, shell history, unrelated scripts) alongside the project.
 - When first pushing to GitHub, **GitHub's push protection correctly blocked the push** because it detected a real AWS-format key inside a committed file (`test_agent.py`). The key was rotated, the file fixed, and the entire local git history was reset (`rm -rf .git` and a fresh `git init`) before re-pushing cleanly, since simply fixing the file in a new commit would have left the exposed key sitting in an earlier commit's history forever.
@@ -160,7 +160,7 @@ Visit `http://localhost:8000`.
 
 ## Known limitations
 
-- **Single-user by design.** There's no login or account system — one shared `tokens.json` file represents "the" connected Google account for the whole app. Anyone who opens the deployed URL sees the same connected calendar. This was a deliberate scope decision for a hackathon demo, not an oversight.
+- **Single-user by design.** There's no login or account system, one shared `tokens.json` file represents "the" connected Google account for the whole app. Anyone who opens the deployed URL sees the same connected calendar. This was a deliberate scope decision for a hackathon demo, not an oversight.
 - **Timezone is hardcoded** to `Africa/Lagos` in `calendar_tools.py`, matching the developer's own timezone for the demo. Would need to be made configurable for real multi-region use.
 - **No persistent database** — task storage is flat JSON files on disk. On Railway's free tier, the filesystem is not guaranteed to persist across redeploys, so errand data may reset when the service restarts or redeploys.
 
@@ -169,6 +169,6 @@ Visit `http://localhost:8000`.
 ## Deployment notes for reference
 
 - **Backend (Railway):** watches the GitHub repo's `main` branch and auto-redeploys on push.
-- **Frontend (Vercel):** same — watches `main` and auto-redeploys on push, root directory set to `frontend/`.
+- **Frontend (Vercel):** watches `main` and auto-redeploys on push, root directory set to `frontend/`.
 - If the Railway URL ever changes, update `frontend/app.js`'s `API_BASE` constant and push.
 - If the Vercel URL ever changes, update the `ALLOWED_ORIGINS` environment variable on Railway to match, and update the Google Cloud Console authorized redirect URI to use the current Railway callback URL.
