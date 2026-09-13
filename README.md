@@ -27,9 +27,9 @@ Built with the [Strands Agents SDK](https://github.com/strands-agents), running 
 | Layer | Technology |
 |---|---|
 | Agent framework | Strands Agents SDK |
-| Model | `openai.gpt-oss-120b` via AWS Bedrock Mantle (`bedrock-mantle.us-east-1.api.aws`) — a non-standard, OpenAI-compatible Bedrock endpoint, used because the classic Bedrock runtime API was blocked on the AWS account this was built with |
+| Model | `openai.gpt-oss-120b` via AWS Bedrock Mantle (`bedrock-mantle.us-east-1.api.aws`) , a non-standard, OpenAI-compatible Bedrock endpoint, used because the classic Bedrock runtime API was blocked on the AWS account this was built with |
 | Backend | Python, FastAPI |
-| Storage | Flat JSON files (`tasks.json`, `tasks_trash.json`) — no database, single-user demo scope |
+| Storage | Flat JSON files (`tasks.json`, `tasks_trash.json`) , no database, single-user demo scope |
 | Calendar integration | Google OAuth 2.0 (Calendar-events scope only), Google Calendar API v3 |
 | Frontend | Vanilla HTML/CSS/JavaScript, no framework or build step |
 | Backend hosting | Railway |
@@ -97,7 +97,7 @@ Several rounds of cleanup were needed here, documented honestly because mistakes
 - Moved the Bedrock API key out of a hardcoded literal in `agent.py` into an environment variable, loaded via `python-dotenv`'s `load_dotenv()` at startup, so the real key only ever lives in a local `.env` file (never committed) or in the hosting platform's environment variable settings.
 - Confirmed `google_auth.py` already read its Google OAuth credentials from environment variables with only harmless placeholder fallbacks — no code change needed there.
 - Found a real hardcoded Bedrock API key in `test_agent.py` (a separate quick-test script) that had been missed in the first pass. Fixed it the same way, and rotated the exposed key in the AWS Bedrock console as a precaution once it had been in a local commit.
-- Built a proper `.gitignore` excluding `.env`, `tokens.json`, `tasks.json`, `tasks_trash.json`, `__pycache__/`, and virtual environment folders — after first catching that `git status` was being run from the *home directory* rather than the project folder, which would have tracked unrelated personal files (AWS credentials folder, shell history, unrelated scripts) alongside the project.
+- Built a proper `.gitignore` excluding `.env`, `tokens.json`, `tasks.json`, `tasks_trash.json`, `__pycache__/`, and virtual environment folders, after first catching that `git status` was being run from the *home directory* rather than the project folder, which would have tracked unrelated personal files (AWS credentials folder, shell history, unrelated scripts) alongside the project.
 - When first pushing to GitHub, **GitHub's push protection correctly blocked the push** because it detected a real AWS-format key inside a committed file (`test_agent.py`). The key was rotated, the file fixed, and the entire local git history was reset (`rm -rf .git` and a fresh `git init`) before re-pushing cleanly, since simply fixing the file in a new commit would have left the exposed key sitting in an earlier commit's history forever.
 
 ### 5. Deployment
