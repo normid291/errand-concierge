@@ -2,7 +2,7 @@
 
 **AWS Agents for Humans Hackathon submission**
 
-Errand Concierge is a conversational AI agent that helps you manage errands, appointments, and small tasks through natural chat — parse a messy brain-dump into organized items, reschedule things by saying "push the dentist to Friday," mark things done, and sync everything to your Google Calendar automatically.
+Errand Concierge is a conversational AI agent that helps you manage errands, appointments, and small tasks through natural chat, parse a messy brain-dump into organized items, reschedule things by saying "push the dentist to Friday," mark things done, and sync everything to your Google Calendar automatically.
 
 Built with the [Strands Agents SDK](https://github.com/strands-agents), running on AWS Bedrock via a custom OpenAI-compatible endpoint (Bedrock Mantle), with a FastAPI backend and a hand-built vanilla HTML/CSS/JS frontend.
 
@@ -154,7 +154,7 @@ Visit `http://localhost:8000`.
 1. In Google Cloud Console, enable the **Google Calendar API** for your project.
 2. Create an OAuth 2.0 Client ID (type: Web application).
 3. Add `http://localhost:8000/api/integrations/google/callback` as an authorized redirect URI (and your production callback URL, if deploying).
-4. Add your own Google account as a **Test user** under the OAuth consent screen — this app stays in "Testing" publish status, which is fine for a demo and doesn't require Google's app verification review.
+4. Add your own Google account as a **Test user** under the OAuth consent screen, this app stays in "Testing" publish status, which is fine for a demo and doesn't require Google's app verification review.
 
 ---
 
