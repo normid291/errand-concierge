@@ -1,174 +1,292 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Errand Concierge</title>
-<link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Errand Concierge — Your plans. Our priority.</title>
+  <meta name="description" content="A conversational concierge that turns a messy brain-dump into an organized errand list, and keeps it in sync with Google Calendar.">
+  <meta name="theme-color" content="#f6f1e6">
+  <link rel="icon" href="./assets/logo-mark.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-<div class="app-shell">
+  <svg class="icon-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.6 9.6 0 0 1-3.7-.7L3 21l1.4-4.4A8.2 8.2 0 0 1 3 11.5 8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.6V12l3 1.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m8.3 12.2 2.5 2.5 4.9-5.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m9.2 9.2 5.6 5.6m0-5.6-5.6 5.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="4.5" cy="6.5" r="1.2" fill="currentColor"/><circle cx="4.5" cy="12" r="1.2" fill="currentColor"/><circle cx="4.5" cy="17.5" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 6.5h15M9.5 4h5M7 6.5l.8 12.1a1.6 1.6 0 0 0 1.6 1.4h5.2a1.6 1.6 0 0 0 1.6-1.4L17 6.5M10 10v6.2M14 10v6.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5.2" width="17" height="15.3" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 9.8h17M8.2 3.2v3.6M15.8 3.2v3.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m15.7 15.7 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M20.5 3.5 10.8 13.2M20.5 3.5l-6.2 17-3.5-7.3-7.3-3.5 17-6.2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5c.7 4.4 2.6 6.3 7 7-4.4.7-6.3 2.6-7 7-.7-4.4-2.6-6.3-7-7 4.4-.7 6.3-2.6 7-7Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M18.7 16.4c.3 1.8 1 2.5 2.8 2.8-1.8.3-2.5 1-2.8 2.8-.3-1.8-1-2.5-2.8-2.8 1.8-.3 2.5-1 2.8-2.8Z" fill="currentColor" opacity=".55"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4.3L20 8.3 15.7 4 4 15.7V20Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m13.9 5.8 4.3 4.3" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 7 4.5 11.5 9 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 11.5H14a5.2 5.2 0 0 1 0 10.4h-2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 8.4v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16.8" r="1.1" fill="currentColor"/><path d="M10.3 4.4 2.9 17.3A1.9 1.9 0 0 0 4.6 20h14.8a1.9 1.9 0 0 0 1.7-2.7L13.7 4.4a2 2 0 0 0-3.4 0Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  </svg>
 
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-head">
-      <div class="brand">
-        <img class="brand-mark" src="/static/assets/logo-mark.png" alt="Errand Concierge">
-        <span class="sidebar-title">Errand<br>Concierge</span>
-      </div>
-      <button class="sidebar-collapse" id="sidebarCollapse" title="Collapse">‹</button>
-    </div>
+  <div class="app" id="app">
+    <div class="scrim" id="scrim" hidden></div>
 
-    <nav class="sidebar-list">
-      <button data-view="home" class="nav-item active">🏠 Home</button>
-      <button data-view="grid" data-status="pending" class="nav-item">⏳ Pending <span class="nav-count" id="countPending"></span></button>
-      <button data-view="grid" data-status="done" class="nav-item">✅ Done</button>
-      <button data-view="grid" data-status="cancelled" class="nav-item">✖ Cancelled</button>
-      <button data-view="grid" data-status="all" class="nav-item">☰ All</button>
-      <button data-view="grid" data-status="trash" class="nav-item">🗑️ Trash</button>
-    </nav>
-
-    <div class="sidebar-section">
-      <p class="sidebar-label">Quick Actions</p>
-      <button class="quick-action" id="newErrandBtn">
-        <span class="quick-action-icon">📝</span>
-        <span>
-          <span class="quick-action-title">New Errand</span><br>
-          <span class="quick-action-sub">Send a request</span>
-        </span>
-      </button>
-    </div>
-
-    <div class="sidebar-section">
-      <p class="sidebar-label">Integrations</p>
-      <button data-view="integrations" class="nav-item">📅 Google Calendar</button>
-    </div>
-
-    <div class="sidebar-tagline">
-      <p>Your plans.<br>Our priority.</p>
-    </div>
-  </aside>
-
-  <button class="sidebar-expand" id="sidebarExpand" title="Show errands">›</button>
-
-  <main class="main-panel">
-    <header class="masthead">
-      <img class="mark" src="/static/assets/logo-mark.png" alt="Errand Concierge">
-      <div class="masthead-text">
-        <h1>Errand Concierge</h1>
-        <p>Tell it what's on your plate. It keeps the list, the dates, and the follow-through.</p>
-      </div>
-      <div class="masthead-right">
-        <div class="masthead-note" aria-hidden="true">Less stress<br>More done</div>
-        <div class="date-pill">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="5" width="16" height="15" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M4 9.5H20" stroke="currentColor" stroke-width="1.6"/><path d="M8 3.2V6.3M16 3.2V6.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          <span id="todayDate"></span>
-        </div>
-      </div>
-    </header>
-
-    <section class="conversation-panel" id="homeView">
-      <div class="conversation-thread" id="thread">
-        <div class="welcome-row">
-          <div class="entry assistant">
-            <div class="who">Concierge</div>
-            <div class="text">Hi — tell me what's on your plate. Bills, appointments, errands, anything you keep forgetting.</div>
-          </div>
-          <div class="welcome-illustration" aria-hidden="true">
-            <svg viewBox="0 0 120 110" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="60" cy="55" r="50" fill="var(--green-wash)"/>
-              <g transform="translate(30,20) rotate(-4 30 35)">
-                <rect x="0" y="0" width="52" height="66" rx="4" fill="var(--paper-raised)" stroke="var(--ink)" stroke-width="2"/>
-                <path d="M9 14H43" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
-                <path d="M9 26L13 30L21 20" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                <path d="M27 27H43" stroke="var(--line)" stroke-width="2" stroke-linecap="round"/>
-                <path d="M9 41L13 45L21 35" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                <path d="M27 42H43" stroke="var(--line)" stroke-width="2" stroke-linecap="round"/>
-                <path d="M9 56L13 60L21 50" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                <path d="M27 57H37" stroke="var(--line)" stroke-width="2" stroke-linecap="round"/>
-              </g>
-              <g transform="translate(64,54) rotate(28)">
-                <rect x="0" y="0" width="8" height="46" rx="3" fill="var(--ochre)"/>
-                <path d="M0 0L8 0L4 -9Z" fill="var(--ink)"/>
-              </g>
-              <path d="M92 24L96 30M100 20L104 24M88 32L92 36" stroke="var(--ochre)" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <form class="composer" id="composer">
-        <input type="text" id="messageInput" placeholder="e.g. pay electricity bill by Friday, dentist next week…" autocomplete="off">
-        <button type="submit" id="sendBtn">
-          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2L7 9M14 2L9.5 14L7 9M14 2L2 6.5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Send</span>
+    <aside class="sidebar" id="sidebar" aria-label="Primary">
+      <div class="sidebar__head">
+        <a class="brand" href="#/chat">
+          <img src="./assets/logo-mark.png" alt="" width="34" height="34">
+          <span class="brand__text">
+            <strong>Errand Concierge</strong>
+            <span>Your plans. Our priority.</span>
+          </span>
+        </a>
+        <button class="icon-btn sidebar__close" id="sidebarClose" type="button" aria-label="Close menu">
+          <svg><use href="#i-close"></use></svg>
         </button>
-      </form>
-    </section>
+      </div>
 
-    <div class="feature-row" id="featureRow">
-      <div class="feature-card feature-green">
-        <div class="feature-icon-badge">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4" y="5" width="16" height="15" rx="2.5" stroke="white" stroke-width="1.7"/>
-            <path d="M4 9.5H20" stroke="white" stroke-width="1.7"/>
-            <path d="M8 3.2V6.3M16 3.2V6.3" stroke="white" stroke-width="1.7" stroke-linecap="round"/>
-            <path d="M8.5 13.5L11 16L15.5 11.3" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <p class="feature-title">Stay on Track</p>
-        <p class="feature-sub">Never miss an important date again.</p>
-      </div>
-      <div class="feature-card feature-blue">
-        <div class="feature-icon-badge">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 3.5L19 6V11.5C19 16 16 18.8 12 20.5C8 18.8 5 16 5 11.5V6L12 3.5Z" stroke="white" stroke-width="1.7" stroke-linejoin="round"/>
-            <path d="M9 11.5L11.2 13.7L15.5 9.3" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <p class="feature-title">Reliable</p>
-        <p class="feature-sub">Your tasks, handled with care.</p>
-      </div>
-      <div class="feature-card feature-yellow">
-        <div class="feature-icon-badge">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13 3L6 13.5H11.5L10.5 21L18 10H12.5L13 3Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="white"/>
-          </svg>
-        </div>
-        <p class="feature-title">Save Time</p>
-        <p class="feature-sub">Focus on what matters most.</p>
-      </div>
-      <div class="feature-card feature-purple">
-        <div class="feature-icon-badge">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 20C12 20 4 15 4 9.5C4 6.8 6.1 5 8.4 5C10 5 11.3 5.8 12 7C12.7 5.8 14 5 15.6 5C17.9 5 20 6.8 20 9.5C20 15 12 20 12 20Z" fill="white"/>
-          </svg>
-        </div>
-        <p class="feature-title">Peace of Mind</p>
-        <p class="feature-sub">Because you have better things to do.</p>
-      </div>
-    </div>
+      <button class="btn btn--primary btn--block sidebar__new" id="newErrandBtn" type="button">
+        <svg class="btn__icon"><use href="#i-plus"></use></svg>
+        New errand
+      </button>
 
-    <section class="grid-panel" id="gridView" style="display:none;">
-      <h2 class="grid-heading" id="gridHeading">Pending</h2>
-      <div class="errand-grid" id="errandGrid"></div>
-    </section>
+      <nav class="nav" aria-label="Errand views">
+        <a class="nav__link" href="#/chat" data-route="chat">
+          <svg><use href="#i-chat"></use></svg><span>Chat</span>
+        </a>
+        <a class="nav__link" href="#/errands?status=pending" data-route="errands" data-status="pending">
+          <svg><use href="#i-clock"></use></svg><span>Pending</span>
+          <span class="nav__count" id="navPending" hidden>0</span>
+        </a>
+        <a class="nav__link" href="#/errands?status=done" data-route="errands" data-status="done">
+          <svg><use href="#i-check"></use></svg><span>Done</span>
+        </a>
+        <a class="nav__link" href="#/errands?status=cancelled" data-route="errands" data-status="cancelled">
+          <svg><use href="#i-x"></use></svg><span>Cancelled</span>
+        </a>
+        <a class="nav__link" href="#/errands?status=all" data-route="errands" data-status="all">
+          <svg><use href="#i-list"></use></svg><span>All errands</span>
+        </a>
+        <a class="nav__link" href="#/trash" data-route="trash">
+          <svg><use href="#i-trash"></use></svg><span>Trash</span>
+        </a>
+      </nav>
 
-    <section class="integrations-panel" id="integrationsView" style="display:none;">
-      <div class="integration-card">
-        <div class="integration-info">
-          <div class="integration-icon">📅</div>
-          <div>
-            <p class="integration-name">Google Calendar</p>
-            <p class="integration-status" id="googleStatusText">Checking…</p>
+      <div class="sidebar__section">
+        <p class="sidebar__label">Integrations</p>
+        <a class="nav__link" href="#/integrations" data-route="integrations">
+          <svg><use href="#i-calendar"></use></svg><span>Google Calendar</span>
+          <span class="status-dot" id="calDot" data-state="unknown" title="Calendar status"></span>
+        </a>
+      </div>
+
+      <div class="sidebar__foot">
+        <div class="mode-pill" id="modePill" data-mode="demo" hidden>
+          <span class="mode-pill__dot"></span>
+          <span id="modePillText">Demo mode</span>
+        </div>
+        <p class="sidebar__note">Errands stay on this server. Calendar events sync when you connect Google.</p>
+      </div>
+    </aside>
+
+    <div class="main-wrap">
+      <header class="topbar">
+        <button class="icon-btn" id="sidebarOpen" type="button" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+          <svg><use href="#i-menu"></use></svg>
+        </button>
+        <a class="topbar__brand" href="#/chat">
+          <img src="./assets/logo-mark.png" alt="" width="26" height="26">
+          <span>Errand Concierge</span>
+        </a>
+        <button class="icon-btn" id="topbarNew" type="button" aria-label="New errand">
+          <svg><use href="#i-plus"></use></svg>
+        </button>
+      </header>
+
+      <main class="main" id="main" tabindex="-1">
+        <!-- Chat -->
+        <section class="view view--chat" id="view-chat" hidden aria-labelledby="chatTitle">
+          <header class="view__head chat-head">
+            <div>
+              <p class="eyebrow">Your personal concierge</p>
+              <h1 id="chatTitle">What's on your plate?</h1>
+              <p class="lede">Dump it all here. I'll turn the mess into a list, hold the dates, and nudge the right things along.</p>
+            </div>
+            <div class="chat-head__side">
+              <div class="date-chip">
+                <svg><use href="#i-calendar"></use></svg>
+                <span id="todayLabel">Today</span>
+              </div>
+              <button class="text-btn" id="clearChat" type="button">Clear chat</button>
+            </div>
+          </header>
+
+          <div class="chat-shell">
+            <div class="thread" id="thread" role="log" aria-live="polite" aria-relevant="additions text"></div>
+
+            <form class="composer" id="composer" autocomplete="off">
+              <label class="sr-only" for="messageInput">Message the concierge</label>
+              <textarea id="messageInput" name="message" rows="1" maxlength="4000"
+                placeholder="e.g. pay rent by Friday…"></textarea>
+              <button class="composer__send" id="sendBtn" type="submit" aria-label="Send message">
+                <svg><use href="#i-send"></use></svg>
+              </button>
+              <p class="composer__hint">Enter to send · Shift + Enter for a new line</p>
+            </form>
           </div>
-        </div>
-        <div class="integration-action" id="googleActionBtn"></div>
+        </section>
+
+        <!-- Errands -->
+        <section class="view" id="view-errands" hidden aria-labelledby="errandsTitle">
+          <header class="view__head">
+            <div>
+              <p class="eyebrow">Your list</p>
+              <h1 id="errandsTitle">Errands</h1>
+              <p class="lede" id="errandsLede">Everything you're keeping track of, in one place.</p>
+            </div>
+            <button class="btn btn--primary" id="newErrandBtn2" type="button">
+              <svg class="btn__icon"><use href="#i-plus"></use></svg>New errand
+            </button>
+          </header>
+
+          <div class="toolbar">
+            <div class="segmented" id="filterTabs" role="tablist" aria-label="Filter errands">
+              <button type="button" role="tab" data-filter="all">All</button>
+              <button type="button" role="tab" data-filter="pending">Pending</button>
+              <button type="button" role="tab" data-filter="done">Done</button>
+              <button type="button" role="tab" data-filter="cancelled">Cancelled</button>
+            </div>
+            <div class="search">
+              <svg><use href="#i-search"></use></svg>
+              <input type="search" id="searchInput" placeholder="Search errands…" aria-label="Search errands">
+            </div>
+          </div>
+
+          <div class="grid" id="errandGrid" aria-live="polite"></div>
+        </section>
+
+        <!-- Trash -->
+        <section class="view" id="view-trash" hidden aria-labelledby="trashTitle">
+          <header class="view__head">
+            <div>
+              <p class="eyebrow">Recently removed</p>
+              <h1 id="trashTitle">Trash</h1>
+              <p class="lede">Deleted errands are kept here as a record. Restore one, or clear them for good.</p>
+            </div>
+            <button class="btn btn--ghost" id="emptyTrashBtn" type="button">Empty trash</button>
+          </header>
+          <div class="grid" id="trashGrid" aria-live="polite"></div>
+        </section>
+
+        <!-- Integrations -->
+        <section class="view" id="view-integrations" hidden aria-labelledby="integrationsTitle">
+          <header class="view__head">
+            <div>
+              <p class="eyebrow">Connections</p>
+              <h1 id="integrationsTitle">Integrations</h1>
+              <p class="lede">Connect Google Calendar and every errand with a date becomes a real event.</p>
+            </div>
+          </header>
+
+          <div class="panel-card" id="calendarCard">
+            <div class="panel-card__main">
+              <div class="panel-card__icon">
+                <svg><use href="#i-calendar"></use></svg>
+              </div>
+              <div>
+                <h2>Google Calendar</h2>
+                <p id="googleStatusText">Checking connection…</p>
+                <p class="panel-card__meta">Calendar events are created, moved, and removed as your errands change.</p>
+              </div>
+            </div>
+            <div class="panel-card__action" id="googleAction"></div>
+          </div>
+
+          <div class="panel-card panel-card--soft">
+            <div class="panel-card__main">
+              <div class="panel-card__icon panel-card__icon--ochre">
+                <svg><use href="#i-spark"></use></svg>
+              </div>
+              <div>
+                <h2>How sync works</h2>
+                <ul class="checklist">
+                  <li>Errands with a due date get a one-hour calendar event.</li>
+                  <li>Rescheduling in chat moves the event; completing, cancelling, or deleting removes it.</li>
+                  <li>If Calendar is down or disconnected, errands still work — sync is best-effort.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <dialog class="dialog" id="errandDialog" aria-labelledby="errandDialogTitle">
+    <form class="dialog__form" id="errandForm" method="dialog">
+      <header class="dialog__head">
+        <h2 id="errandDialogTitle">New errand</h2>
+        <button class="icon-btn" type="button" data-close-dialog aria-label="Close">
+          <svg><use href="#i-close"></use></svg>
+        </button>
+      </header>
+
+      <div class="field">
+        <label for="errandTitle">What needs doing?</label>
+        <input id="errandTitle" name="title" type="text" maxlength="200" required placeholder="Pay electricity bill">
       </div>
-    </section>
-  </main>
 
-</div>
+      <div class="field">
+        <label for="errandDue">When? <span class="optional">Optional</span></label>
+        <input id="errandDue" name="due" type="text" maxlength="120" placeholder="Friday, next week, 2026-11-03">
+        <div class="quick-dates" id="quickDates">
+          <button type="button" data-due="today">Today</button>
+          <button type="button" data-due="tomorrow">Tomorrow</button>
+          <button type="button" data-due="this weekend">This weekend</button>
+          <button type="button" data-due="next week">Next week</button>
+          <button type="button" data-due="">No date</button>
+        </div>
+      </div>
 
-<script src="/static/app.js"></script>
+      <div class="field">
+        <label for="errandNotes">Notes <span class="optional">Optional</span></label>
+        <textarea id="errandNotes" name="notes" rows="3" maxlength="2000" placeholder="Anything worth remembering"></textarea>
+      </div>
+
+      <p class="form-error" id="errandFormError" role="alert" hidden></p>
+
+      <footer class="dialog__foot">
+        <button class="btn btn--ghost" type="button" data-close-dialog>Cancel</button>
+        <button class="btn btn--primary" id="errandSubmit" type="submit">Add errand</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog--small" id="confirmDialog" aria-labelledby="confirmTitle">
+    <div class="dialog__form">
+      <header class="dialog__head">
+        <h2 id="confirmTitle">Are you sure?</h2>
+        <button class="icon-btn" type="button" data-close-confirm aria-label="Close">
+          <svg><use href="#i-close"></use></svg>
+        </button>
+      </header>
+      <p class="confirm-text" id="confirmText"></p>
+      <footer class="dialog__foot">
+        <button class="btn btn--ghost" type="button" data-close-confirm>Cancel</button>
+        <button class="btn btn--danger" id="confirmAction" type="button">Delete</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <script src="./config.js"></script>
+  <script src="./app.js" defer></script>
 </body>
 </html>

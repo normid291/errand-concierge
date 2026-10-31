@@ -1,0 +1,16 @@
+.git
+.gitignore
+.venv
+venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+data
+*.db
+.env
+.env.*
+!.env.example
+docs
+node_modules
+README.md

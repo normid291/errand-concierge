@@ -1,9 +1,30 @@
+# Secrets and local state
 .env
+.env.*
+!.env.example
 tokens.json
 tasks.json
 tasks_trash.json
+*.migrated
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Python
 __pycache__/
-*.pyc
-venv/
+*.py[cod]
 .venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / tooling
 node_modules/
+.DS_Store
+*.log
+
+# Local screenshots from UI checks
+/tmp/
