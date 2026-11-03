@@ -22,7 +22,8 @@
   };
 
   const el = {};
-  const STATUS_ICON = { pending: 'i-tick', done: 'i-tick', cancelled: 'i-close' };
+  const STATUS_LABEL = { pending: 'Pending', done: 'Done', cancelled: 'Cancelled' };
+  const STATUS_ICON = { pending: 'i-clock', done: 'i-check', cancelled: 'i-x' };
 
   // ------------------------------------------------------------------ utils
   function $(selector, root = document) {
@@ -240,7 +241,7 @@
     const avatar = document.createElement('div');
     avatar.className = 'message__avatar';
     avatar.setAttribute('aria-hidden', 'true');
-    avatar.appendChild(svgIcon('i-chat'));
+    avatar.appendChild(svgIcon(role === 'user' ? 'i-chat' : 'i-spark'));
     wrap.appendChild(avatar);
 
     const body = document.createElement('div');
@@ -276,7 +277,7 @@
     const avatar = document.createElement('div');
     avatar.className = 'message__avatar';
     avatar.setAttribute('aria-hidden', 'true');
-    avatar.appendChild(svgIcon('i-chat'));
+    avatar.appendChild(svgIcon('i-spark'));
     wrap.appendChild(avatar);
 
     const body = document.createElement('div');
@@ -297,14 +298,19 @@
     const wrap = document.createElement('div');
     wrap.className = 'welcome';
 
-    const title = document.createElement('p');
+    const mark = document.createElement('div');
+    mark.className = 'welcome__mark';
+    mark.appendChild(svgIcon('i-spark'));
+    wrap.appendChild(mark);
+
+    const title = document.createElement('h2');
     title.className = 'welcome__title';
-    title.textContent = 'Tell me what you keep forgetting.';
+    title.textContent = 'Let me hold the list for you';
     wrap.appendChild(title);
 
     const text = document.createElement('p');
     text.className = 'welcome__text';
-    text.textContent = 'Bills, appointments, tiny errands — I will sort them, date them, and keep them in view.';
+    text.textContent = 'Tell me what you keep forgetting — bills, appointments, tiny errands. I will sort it, date it, and keep it in view.';
     wrap.appendChild(text);
 
     const suggestions = document.createElement('div');
@@ -312,7 +318,7 @@
     [
       'Pay rent by Friday',
       'Dentist next Tuesday at 3pm',
-      'Renew my passport',
+      'I need to renew my passport',
       "What's pending?",
     ].forEach((prompt) => {
       const button = document.createElement('button');
@@ -468,64 +474,70 @@
   function dueChipNode(errand) {
     const info = dueInfo(errand);
     const chip = document.createElement('span');
-    chip.className = 'row__due' + (info.tone !== 'normal' ? ' row__due--' + info.tone : '');
+    chip.className = 'due-chip' + (info.tone !== 'normal' ? ' due-chip--' + info.tone : '');
     chip.title = info.title;
     chip.appendChild(svgIcon('i-clock'));
     const text = document.createElement('span');
     text.textContent = info.label;
     chip.appendChild(text);
-    if (errand.calendar_event_id) {
-      const cal = svgIcon('i-calendar');
-      cal.classList.add('row__cal');
-      chip.appendChild(cal);
-      chip.title += ' · On Google Calendar';
-    }
     return chip;
   }
 
   function errandCard(errand) {
     const info = dueInfo(errand);
-    const row = document.createElement('article');
-    row.className = 'errand-card errand-card--' + errand.status;
-    if (errand.status === 'pending' && info.tone === 'overdue') row.classList.add('overdue');
-    row.dataset.id = errand.id;
+    const card = document.createElement('article');
+    card.className = 'errand-card errand-card--' + errand.status;
+    if (errand.status === 'pending' && info.tone === 'overdue') card.classList.add('overdue');
+    card.dataset.id = errand.id;
 
-    const lead = document.createElement('div');
-    lead.className = 'row__lead';
-    const check = document.createElement('button');
-    check.type = 'button';
-    check.className = 'row__check';
-    if (errand.status === 'done') check.classList.add('row__check--done');
-    if (errand.status === 'cancelled') check.classList.add('row__check--cancelled');
-    check.dataset.action = errand.status === 'pending' ? 'complete' : 'reopen';
-    const checkLabel = errand.status === 'pending'
-      ? 'Mark “' + errand.title + '” as done'
-      : 'Reopen “' + errand.title + '”';
-    check.setAttribute('aria-label', checkLabel);
-    check.title = checkLabel;
-    check.appendChild(svgIcon(STATUS_ICON[errand.status] || 'i-list'));
-    lead.appendChild(check);
-    row.appendChild(lead);
+    card.innerHTML =
+      '<div class="errand-card__top">' +
+        '<span class="badge"></span>' +
+      '</div>' +
+      '<h2 class="errand-card__title"></h2>' +
+      '<p class="errand-card__notes" hidden></p>' +
+      '<div class="errand-card__meta"></div>' +
+      '<div class="errand-card__actions"></div>';
 
-    const main = document.createElement('div');
-    main.className = 'row__main';
-    const title = document.createElement('h2');
-    title.className = 'row__title';
-    title.textContent = errand.title;
-    main.appendChild(title);
+    const badge = card.querySelector('.badge');
+    badge.classList.add('badge--' + errand.status);
+    badge.appendChild(svgIcon(STATUS_ICON[errand.status] || 'i-list'));
+    const badgeText = document.createElement('span');
+    badgeText.textContent = STATUS_LABEL[errand.status] || errand.status;
+    badge.appendChild(badgeText);
+
+    card.querySelector('.errand-card__top').appendChild(dueChipNode(errand));
+    card.querySelector('.errand-card__title').textContent = errand.title;
+
     if (errand.notes) {
-      const notes = document.createElement('p');
-      notes.className = 'row__notes';
+      const notes = card.querySelector('.errand-card__notes');
+      notes.hidden = false;
       notes.textContent = errand.notes;
-      notes.title = errand.notes;
-      main.appendChild(notes);
     }
-    row.appendChild(main);
 
-    row.appendChild(dueChipNode(errand));
+    const meta = card.querySelector('.errand-card__meta');
+    const added = document.createElement('span');
+    added.textContent = 'Added ' + shortDate(errand.created_at);
+    meta.appendChild(added);
 
-    const actions = document.createElement('div');
-    actions.className = 'row__actions';
+    if (errand.completed_at) {
+      const completed = document.createElement('span');
+      completed.textContent = 'Completed ' + shortDate(errand.completed_at);
+      meta.appendChild(completed);
+    }
+    if (errand.cancelled_at) {
+      const cancelled = document.createElement('span');
+      cancelled.textContent = 'Cancelled ' + shortDate(errand.cancelled_at);
+      meta.appendChild(cancelled);
+    }
+    if (errand.calendar_event_id) {
+      const synced = document.createElement('span');
+      synced.textContent = 'On calendar';
+      synced.title = 'Synced with Google Calendar';
+      meta.appendChild(synced);
+    }
+
+    const actions = card.querySelector('.errand-card__actions');
     const addAction = (action, label, extraClass = '') => {
       const button = document.createElement('button');
       button.type = 'button';
@@ -535,13 +547,17 @@
       actions.appendChild(button);
     };
 
-    addAction('edit', 'Edit');
-    if (errand.status === 'pending') addAction('cancel', 'Cancel');
+    if (errand.status === 'pending') {
+      addAction('complete', 'Complete');
+      addAction('edit', 'Edit');
+      addAction('cancel', 'Cancel');
+    } else {
+      addAction('reopen', 'Reopen');
+      addAction('edit', 'Edit');
+    }
     addAction('delete', 'Delete', 'link-btn--danger');
 
-    row.appendChild(actions);
-
-    return row;
+    return card;
   }
 
   function renderErrands() {
@@ -664,50 +680,37 @@
 
   // ------------------------------------------------------------------ trash
   function trashCard(entry) {
-    const row = document.createElement('article');
-    row.className = 'errand-card errand-card--cancelled';
-    row.dataset.id = entry.id;
+    const card = document.createElement('article');
+    card.className = 'errand-card trash-card';
+    card.dataset.id = entry.id;
 
-    const lead = document.createElement('div');
-    lead.className = 'row__lead';
-    const mark = document.createElement('span');
-    mark.className = 'row__check row__check--cancelled';
-    mark.setAttribute('aria-hidden', 'true');
-    mark.appendChild(svgIcon('i-trash'));
-    lead.appendChild(mark);
-    row.appendChild(lead);
+    card.innerHTML =
+      '<div class="errand-card__top"><span class="badge badge--deleted">Deleted</span></div>' +
+      '<h2 class="errand-card__title"></h2>' +
+      '<p class="errand-card__notes" hidden></p>' +
+      '<div class="errand-card__meta"></div>' +
+      '<div class="errand-card__actions">' +
+        '<button type="button" class="link-btn" data-action="restore">Restore</button>' +
+        '<button type="button" class="link-btn link-btn--danger" data-action="purge">Delete forever</button>' +
+      '</div>';
 
-    const main = document.createElement('div');
-    main.className = 'row__main';
-    const title = document.createElement('h2');
-    title.className = 'row__title';
-    title.textContent = entry.title || 'Untitled errand';
-    main.appendChild(title);
+    card.querySelector('.errand-card__title').textContent = entry.title || 'Untitled errand';
     if (entry.notes) {
-      const notes = document.createElement('p');
-      notes.className = 'row__notes';
+      const notes = card.querySelector('.errand-card__notes');
+      notes.hidden = false;
       notes.textContent = entry.notes;
-      notes.title = entry.notes;
-      main.appendChild(notes);
     }
-    row.appendChild(main);
+    const meta = card.querySelector('.errand-card__meta');
+    if (entry.due_text || entry.due_at) {
+      const wasDue = document.createElement('span');
+      wasDue.textContent = 'Was due ' + (entry.due_text || shortDate(entry.due_at));
+      meta.appendChild(wasDue);
+    }
+    const deleted = document.createElement('span');
+    deleted.textContent = 'Deleted ' + shortDate(entry.deleted_at);
+    meta.appendChild(deleted);
 
-    const meta = document.createElement('span');
-    meta.className = 'row__due row__due--none';
-    const parts = [];
-    if (entry.due_text || entry.due_at) parts.push('Was due ' + (entry.due_text || shortDate(entry.due_at)));
-    parts.push('Deleted ' + shortDate(entry.deleted_at));
-    meta.textContent = parts.join(' · ');
-    row.appendChild(meta);
-
-    const actions = document.createElement('div');
-    actions.className = 'row__actions';
-    actions.innerHTML =
-      '<button type="button" class="link-btn" data-action="restore">Restore</button>' +
-      '<button type="button" class="link-btn link-btn--danger" data-action="purge">Delete forever</button>';
-    row.appendChild(actions);
-
-    return row;
+    return card;
   }
 
   async function loadTrash() {
@@ -960,7 +963,7 @@
     });
     let active = null;
     if (view === 'errands') {
-      active = $('.nav__link[data-route="errands"]');
+      active = $('.nav__link[data-route="errands"][data-status="' + state.filter + '"]');
     } else {
       active = $('.nav__link[data-route="' + view + '"]');
     }
