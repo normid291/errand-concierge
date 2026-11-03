@@ -5,10 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Errand Concierge — Your plans. Our priority.</title>
   <meta name="description" content="A conversational concierge that turns a messy brain-dump into an organized errand list, and keeps it in sync with Google Calendar.">
-  <meta name="theme-color" content="#f6f1e6">
+  <meta name="theme-color" content="#f5f1e8">
   <link rel="icon" href="./assets/logo-mark.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" media="print" onload="this.media='all'"
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <noscript>
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  </noscript>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -18,6 +24,7 @@
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.6 9.6 0 0 1-3.7-.7L3 21l1.4-4.4A8.2 8.2 0 0 1 3 11.5 8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.6V12l3 1.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m8.3 12.2 2.5 2.5 4.9-5.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-tick" viewBox="0 0 24 24"><path d="m5 12.6 4.3 4.3L19 7.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m9.2 9.2 5.6 5.6m0-5.6-5.6 5.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="4.5" cy="6.5" r="1.2" fill="currentColor"/><circle cx="4.5" cy="12" r="1.2" fill="currentColor"/><circle cx="4.5" cy="17.5" r="1.2" fill="currentColor"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 6.5h15M9.5 4h5M7 6.5l.8 12.1a1.6 1.6 0 0 0 1.6 1.4h5.2a1.6 1.6 0 0 0 1.6-1.4L17 6.5M10 10v6.2M14 10v6.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -27,7 +34,6 @@
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
     <symbol id="i-send" viewBox="0 0 24 24"><path d="M20.5 3.5 10.8 13.2M20.5 3.5l-6.2 17-3.5-7.3-7.3-3.5 17-6.2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5c.7 4.4 2.6 6.3 7 7-4.4.7-6.3 2.6-7 7-.7-4.4-2.6-6.3-7-7 4.4-.7 6.3-2.6 7-7Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M18.7 16.4c.3 1.8 1 2.5 2.8 2.8-1.8.3-2.5 1-2.8 2.8-.3-1.8-1-2.5-2.8-2.8 1.8-.3 2.5-1 2.8-2.8Z" fill="currentColor" opacity=".55"/></symbol>
     <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4.3L20 8.3 15.7 4 4 15.7V20Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m13.9 5.8 4.3 4.3" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
     <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 7 4.5 11.5 9 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 11.5H14a5.2 5.2 0 0 1 0 10.4h-2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -40,7 +46,7 @@
     <aside class="sidebar" id="sidebar" aria-label="Primary">
       <div class="sidebar__head">
         <a class="brand" href="#/chat">
-          <img src="./assets/logo-mark.png" alt="" width="34" height="34">
+          <img src="./assets/logo-mark.png" alt="" width="32" height="32">
           <span class="brand__text">
             <strong>Errand Concierge</strong>
             <span>Your plans. Our priority.</span>
@@ -60,18 +66,9 @@
         <a class="nav__link" href="#/chat" data-route="chat">
           <svg><use href="#i-chat"></use></svg><span>Chat</span>
         </a>
-        <a class="nav__link" href="#/errands?status=pending" data-route="errands" data-status="pending">
-          <svg><use href="#i-clock"></use></svg><span>Pending</span>
+        <a class="nav__link" href="#/errands?status=pending" data-route="errands">
+          <svg><use href="#i-list"></use></svg><span>Errands</span>
           <span class="nav__count" id="navPending" hidden>0</span>
-        </a>
-        <a class="nav__link" href="#/errands?status=done" data-route="errands" data-status="done">
-          <svg><use href="#i-check"></use></svg><span>Done</span>
-        </a>
-        <a class="nav__link" href="#/errands?status=cancelled" data-route="errands" data-status="cancelled">
-          <svg><use href="#i-x"></use></svg><span>Cancelled</span>
-        </a>
-        <a class="nav__link" href="#/errands?status=all" data-route="errands" data-status="all">
-          <svg><use href="#i-list"></use></svg><span>All errands</span>
         </a>
         <a class="nav__link" href="#/trash" data-route="trash">
           <svg><use href="#i-trash"></use></svg><span>Trash</span>
@@ -79,7 +76,6 @@
       </nav>
 
       <div class="sidebar__section">
-        <p class="sidebar__label">Integrations</p>
         <a class="nav__link" href="#/integrations" data-route="integrations">
           <svg><use href="#i-calendar"></use></svg><span>Google Calendar</span>
           <span class="status-dot" id="calDot" data-state="unknown" title="Calendar status"></span>
@@ -87,10 +83,10 @@
       </div>
 
       <div class="sidebar__foot">
-        <div class="mode-pill" id="modePill" data-mode="demo" hidden>
-          <span class="mode-pill__dot"></span>
+        <span class="mode" id="modePill" data-mode="demo" hidden>
+          <span class="mode__dot"></span>
           <span id="modePillText">Demo mode</span>
-        </div>
+        </span>
         <p class="sidebar__note">Errands stay on this server. Calendar events sync when you connect Google.</p>
       </div>
     </aside>
@@ -114,15 +110,11 @@
         <section class="view view--chat" id="view-chat" hidden aria-labelledby="chatTitle">
           <header class="view__head chat-head">
             <div>
-              <p class="eyebrow">Your personal concierge</p>
               <h1 id="chatTitle">What's on your plate?</h1>
               <p class="lede">Dump it all here. I'll turn the mess into a list, hold the dates, and nudge the right things along.</p>
             </div>
             <div class="chat-head__side">
-              <div class="date-chip">
-                <svg><use href="#i-calendar"></use></svg>
-                <span id="todayLabel">Today</span>
-              </div>
+              <span class="today" id="todayLabel">Today</span>
               <button class="text-btn" id="clearChat" type="button">Clear chat</button>
             </div>
           </header>
@@ -146,13 +138,9 @@
         <section class="view" id="view-errands" hidden aria-labelledby="errandsTitle">
           <header class="view__head">
             <div>
-              <p class="eyebrow">Your list</p>
               <h1 id="errandsTitle">Errands</h1>
               <p class="lede" id="errandsLede">Everything you're keeping track of, in one place.</p>
             </div>
-            <button class="btn btn--primary" id="newErrandBtn2" type="button">
-              <svg class="btn__icon"><use href="#i-plus"></use></svg>New errand
-            </button>
           </header>
 
           <div class="toolbar">
@@ -168,61 +156,48 @@
             </div>
           </div>
 
-          <div class="grid" id="errandGrid" aria-live="polite"></div>
+          <div class="list" id="errandGrid" aria-live="polite"></div>
         </section>
 
         <!-- Trash -->
         <section class="view" id="view-trash" hidden aria-labelledby="trashTitle">
           <header class="view__head">
             <div>
-              <p class="eyebrow">Recently removed</p>
               <h1 id="trashTitle">Trash</h1>
               <p class="lede">Deleted errands are kept here as a record. Restore one, or clear them for good.</p>
             </div>
             <button class="btn btn--ghost" id="emptyTrashBtn" type="button">Empty trash</button>
           </header>
-          <div class="grid" id="trashGrid" aria-live="polite"></div>
+          <div class="list" id="trashGrid" aria-live="polite"></div>
         </section>
 
         <!-- Integrations -->
         <section class="view" id="view-integrations" hidden aria-labelledby="integrationsTitle">
           <header class="view__head">
             <div>
-              <p class="eyebrow">Connections</p>
               <h1 id="integrationsTitle">Integrations</h1>
               <p class="lede">Connect Google Calendar and every errand with a date becomes a real event.</p>
             </div>
           </header>
 
-          <div class="panel-card" id="calendarCard">
-            <div class="panel-card__main">
-              <div class="panel-card__icon">
-                <svg><use href="#i-calendar"></use></svg>
+          <section class="panel" id="calendarCard">
+            <div class="panel__top">
+              <div class="panel__id">
+                <span class="panel__icon" aria-hidden="true"><svg><use href="#i-calendar"></use></svg></span>
+                <div>
+                  <h2>Google Calendar</h2>
+                  <p id="googleStatusText">Checking connection…</p>
+                </div>
               </div>
-              <div>
-                <h2>Google Calendar</h2>
-                <p id="googleStatusText">Checking connection…</p>
-                <p class="panel-card__meta">Calendar events are created, moved, and removed as your errands change.</p>
-              </div>
+              <div class="panel__action" id="googleAction"></div>
             </div>
-            <div class="panel-card__action" id="googleAction"></div>
-          </div>
 
-          <div class="panel-card panel-card--soft">
-            <div class="panel-card__main">
-              <div class="panel-card__icon panel-card__icon--ochre">
-                <svg><use href="#i-spark"></use></svg>
-              </div>
-              <div>
-                <h2>How sync works</h2>
-                <ul class="checklist">
-                  <li>Errands with a due date get a one-hour calendar event.</li>
-                  <li>Rescheduling in chat moves the event; completing, cancelling, or deleting removes it.</li>
-                  <li>If Calendar is down or disconnected, errands still work — sync is best-effort.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+            <ul class="notes">
+              <li>Errands with a due date get a one-hour calendar event.</li>
+              <li>Rescheduling in chat moves the event; completing, cancelling, or deleting removes it.</li>
+              <li>If Calendar is down or disconnected, errands still work — sync is best-effort.</li>
+            </ul>
+          </section>
         </section>
       </main>
     </div>
