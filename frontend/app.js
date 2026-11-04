@@ -22,8 +22,6 @@
   };
 
   const el = {};
-  const STATUS_LABEL = { pending: 'Pending', done: 'Done', cancelled: 'Cancelled' };
-  const STATUS_ICON = { pending: 'i-clock', done: 'i-check', cancelled: 'i-x' };
 
   // ------------------------------------------------------------------ utils
   function $(selector, root = document) {
@@ -241,7 +239,7 @@
     const avatar = document.createElement('div');
     avatar.className = 'message__avatar';
     avatar.setAttribute('aria-hidden', 'true');
-    avatar.appendChild(svgIcon(role === 'user' ? 'i-chat' : 'i-spark'));
+    avatar.appendChild(svgIcon(role === 'user' ? 'i-chat' : 'i-bell'));
     wrap.appendChild(avatar);
 
     const body = document.createElement('div');
@@ -277,7 +275,7 @@
     const avatar = document.createElement('div');
     avatar.className = 'message__avatar';
     avatar.setAttribute('aria-hidden', 'true');
-    avatar.appendChild(svgIcon('i-spark'));
+    avatar.appendChild(svgIcon('i-bell'));
     wrap.appendChild(avatar);
 
     const body = document.createElement('div');
@@ -294,24 +292,14 @@
     return wrap;
   }
 
-  function welcomeNode() {
+  function starterNode() {
     const wrap = document.createElement('div');
-    wrap.className = 'welcome';
+    wrap.className = 'starter';
 
-    const mark = document.createElement('div');
-    mark.className = 'welcome__mark';
-    mark.appendChild(svgIcon('i-spark'));
-    wrap.appendChild(mark);
-
-    const title = document.createElement('h2');
-    title.className = 'welcome__title';
-    title.textContent = 'Let me hold the list for you';
-    wrap.appendChild(title);
-
-    const text = document.createElement('p');
-    text.className = 'welcome__text';
-    text.textContent = 'Tell me what you keep forgetting — bills, appointments, tiny errands. I will sort it, date it, and keep it in view.';
-    wrap.appendChild(text);
+    const label = document.createElement('p');
+    label.className = 'starter__label';
+    label.textContent = 'Start with one of these';
+    wrap.appendChild(label);
 
     const suggestions = document.createElement('div');
     suggestions.className = 'suggestions';
@@ -335,7 +323,7 @@
   function renderChat() {
     el.thread.textContent = '';
     if (state.messages.length === 0) {
-      el.thread.appendChild(welcomeNode());
+      el.thread.appendChild(starterNode());
     } else {
       state.messages.forEach((message) => {
         el.thread.appendChild(messageNode(message.role, message.content, message.ts));
@@ -491,22 +479,18 @@
     card.dataset.id = errand.id;
 
     card.innerHTML =
-      '<div class="errand-card__top">' +
-        '<span class="badge"></span>' +
-      '</div>' +
+      '<div class="errand-card__top"></div>' +
       '<h2 class="errand-card__title"></h2>' +
       '<p class="errand-card__notes" hidden></p>' +
       '<div class="errand-card__meta"></div>' +
       '<div class="errand-card__actions"></div>';
 
-    const badge = card.querySelector('.badge');
-    badge.classList.add('badge--' + errand.status);
-    badge.appendChild(svgIcon(STATUS_ICON[errand.status] || 'i-list'));
-    const badgeText = document.createElement('span');
-    badgeText.textContent = STATUS_LABEL[errand.status] || errand.status;
-    badge.appendChild(badgeText);
-
-    card.querySelector('.errand-card__top').appendChild(dueChipNode(errand));
+    const top = card.querySelector('.errand-card__top');
+    if (errand.due_at || errand.due_text) {
+      top.appendChild(dueChipNode(errand));
+    } else {
+      top.remove();
+    }
     card.querySelector('.errand-card__title').textContent = errand.title;
 
     if (errand.notes) {
@@ -550,14 +534,40 @@
     if (errand.status === 'pending') {
       addAction('complete', 'Complete');
       addAction('edit', 'Edit');
-      addAction('cancel', 'Cancel');
+      actions.appendChild(addMenu([
+        { action: 'cancel', label: 'Cancel errand' },
+        { action: 'delete', label: 'Delete', danger: true },
+      ]));
     } else {
       addAction('reopen', 'Reopen');
       addAction('edit', 'Edit');
+      actions.appendChild(addMenu([{ action: 'delete', label: 'Delete', danger: true }]));
     }
-    addAction('delete', 'Delete', 'link-btn--danger');
 
     return card;
+  }
+
+  function addMenu(items) {
+    const menu = document.createElement('details');
+    menu.className = 'card-menu';
+
+    const toggle = document.createElement('summary');
+    toggle.className = 'link-btn card-menu__toggle';
+    toggle.textContent = 'More';
+    menu.appendChild(toggle);
+
+    const panel = document.createElement('div');
+    panel.className = 'card-menu__panel';
+    items.forEach(({ action, label, danger }) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'link-btn' + (danger ? ' link-btn--danger' : '');
+      button.dataset.action = action;
+      button.textContent = label;
+      panel.appendChild(button);
+    });
+    menu.appendChild(panel);
+    return menu;
   }
 
   function renderErrands() {
@@ -685,7 +695,6 @@
     card.dataset.id = entry.id;
 
     card.innerHTML =
-      '<div class="errand-card__top"><span class="badge badge--deleted">Deleted</span></div>' +
       '<h2 class="errand-card__title"></h2>' +
       '<p class="errand-card__notes" hidden></p>' +
       '<div class="errand-card__meta"></div>' +
@@ -1030,6 +1039,10 @@
     document.body.style.overflow = '';
   }
 
+  function closeCardMenus() {
+    $$('.card-menu[open]').forEach((menu) => menu.removeAttribute('open'));
+  }
+
   // -------------------------------------------------------------------- init
   function cacheElements() {
     el.app = $('#app');
@@ -1140,6 +1153,7 @@
       const button = event.target.closest('button[data-action]');
       const card = event.target.closest('.errand-card');
       if (!button || !card) return;
+      closeCardMenus();
       handleErrandAction(button.dataset.action, card.dataset.id);
     });
 
@@ -1147,7 +1161,14 @@
       const button = event.target.closest('button[data-action]');
       const card = event.target.closest('.errand-card');
       if (!button || !card) return;
+      closeCardMenus();
       handleTrashAction(button.dataset.action, card.dataset.id);
+    });
+
+    document.addEventListener('click', (event) => {
+      $$('.card-menu[open]').forEach((menu) => {
+        if (!menu.contains(event.target)) menu.removeAttribute('open');
+      });
     });
 
     el.emptyTrashBtn.addEventListener('click', () => {
@@ -1194,7 +1215,10 @@
     });
 
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') closeSidebar();
+      if (event.key === 'Escape') {
+        closeSidebar();
+        closeCardMenus();
+      }
       if (event.key === '/' && state.route === 'errands' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) {
         event.preventDefault();
         el.searchInput.focus();
